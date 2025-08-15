@@ -166,7 +166,9 @@ BOT_API_TOKEN = "123"  # must match bot server
 
 ALLOWED_HOSTS = ["*"]
 ALLOWED_HOSTS = ["restaranbasic-production.up.railway.app"]
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://restaranbasic-production.up.railway.app",
+]
 CSRF_TRUSTED_ORIGINS = [
     "https://*"
 ]
