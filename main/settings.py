@@ -167,14 +167,13 @@ TELEGRAM_BOT_TOKEN = "8478003974:AAEf1RHpMJ8Aw0pAYx_Q2XtzbctAgY7V3EM"
 BOT_API_TOKEN = "123"  # must match bot server
 DEBUG = True
 SECURE_SSL_REDIRECT = True
-CSRF_TRUSTED_ORIGINS = ["https://restaranbasic-production.up.railway.app"]
 
 # Allow all hosts
 ALLOWED_HOSTS = ["*"]
 
 # CSRF and CORS
 CORS_ALLOW_ALL_ORIGINS = True
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # CSRF trusted origins for any HTTPS origin
 CSRF_TRUSTED_ORIGINS = [
     "https://*",
