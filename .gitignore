@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / compiled files
+*.pyc
+__pycache__/
+
+# Django-specific files
+*.log
+*.pot
+db.sqlite3
+local_settings.py  # Or any other file containing sensitive local configurations
+
+# Virtual Environment
+.env/
+venv/
+env/
+
+# Media and Static files (if collected separately)
+/media/
+/static_collected/  # Or whatever directory you use for collected static files
+
+# IDE specific files (e.g., PyCharm, VS Code)
+.idea/
+.vscode/
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# Test/coverage related files
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.hypothesis/
+
+# Other temporary or generated files
+*~
+*.swp
