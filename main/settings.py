@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-s+i9@8w4i71pr$a3iqde!eqz#xksje&p-v6(^rtd#k^uw_*k-h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -166,17 +165,17 @@ SWAGGER_SETTINGS = {
 
 TELEGRAM_BOT_TOKEN = "8478003974:AAEf1RHpMJ8Aw0pAYx_Q2XtzbctAgY7V3EM"
 BOT_API_TOKEN = "123"  # must match bot server
+DEBUG = False
 
-
+# Allow all hosts
 ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = ["restaranbasic-production.up.railway.app"]
-CSRF_TRUSTED_ORIGINS = [
-    "https://restaranbasic-production.up.railway.app",
-]
-ALLOWED_HOSTS = ["restaranbasic-production.up.railway.app"]
-CSRF_TRUSTED_ORIGINS = ["https://restaranbasic-production.up.railway.app"]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://*"
-]
+# CSRF and CORS
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF trusted origins for any HTTPS origin
+CSRF_TRUSTED_ORIGINS = [
+    "https://*",
+]
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
