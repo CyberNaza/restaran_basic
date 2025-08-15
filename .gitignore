@@ -5,7 +5,6 @@ __pycache__/
 # Django-specific files
 *.log
 *.pot
-db.sqlite3
 local_settings.py  # Or any other file containing sensitive local configurations
 
 # Virtual Environment
