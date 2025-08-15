@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-s+i9@8w4i71pr$a3iqde!eqz#xksje&p-v6(^rtd#k^uw_*k-h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -39,17 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'rest_framework',
-    'corsheaders',
 
 
     'restaran',
+    'corsheaders',
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',    
     'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files in production
-    'corsheaders.middleware.CorsMiddleware',
     
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -172,6 +173,9 @@ ALLOWED_HOSTS = ["restaranbasic-production.up.railway.app"]
 CSRF_TRUSTED_ORIGINS = [
     "https://restaranbasic-production.up.railway.app",
 ]
+ALLOWED_HOSTS = ["restaranbasic-production.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = ["https://restaranbasic-production.up.railway.app"]
+
 CSRF_TRUSTED_ORIGINS = [
     "https://*"
 ]
