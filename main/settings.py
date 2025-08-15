@@ -179,3 +179,17 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 # CORS settings
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',    
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
