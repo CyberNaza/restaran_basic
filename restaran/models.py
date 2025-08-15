@@ -40,37 +40,37 @@ class Order(models.Model):
         super().save(*args, **kwargs)
         self.send_to_telegram()
 
-def send_to_telegram(self):
-    # Convert JSON items to a readable string
-    items_text = ""
-    if isinstance(self.items, list):
-        # If items is a list of dicts
-        for item in self.items:
-            if isinstance(item, dict):
-                name = item.get("name", "Unknown")
-                qty = item.get("quantity", 1)
-                items_text += f"- {name} x{qty}\n"
-            else:
-                items_text += f"- {str(item)}\n"
-    else:
-        # fallback
-        items_text = str(self.items)
 
-    text = (
-        f"📦 New Order!\n"
-        f"👤 User: {self.user.username} ({self.user.phone})\n"
-        f"🛒 Items:\n{items_text}"
-        f"📍 Address: {self.address or 'N/A'}\n"
-        f"💳 Payment: {self.payment_method}\n"
-        f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-    )
+    def send_to_telegram_async(self):
+        items_text = ""
+        if isinstance(self.items, list):
+            for item in self.items:
+                if isinstance(item, dict):
+                    name = item.get("name", "Unknown")
+                    qty = item.get("quantity", 1)
+                    items_text += f"- {name} x{qty}\n"
+                else:
+                    items_text += f"- {str(item)}\n"
+        else:
+            items_text = str(self.items)
 
-    for tg_user in TelegramUser.objects.all():
-        requests.get(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-            params={"chat_id": tg_user.chat_id, "text": text}
+        text = (
+            f"📦 New Order!\n"
+            f"👤 User: {self.user.username} ({self.user.phone})\n"
+            f"🛒 Items:\n{items_text}"
+            f"📍 Address: {self.address or 'N/A'}\n"
+            f"💳 Payment: {self.payment_method}\n"
+            f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
         )
 
+        for tg_user in TelegramUser.objects.all():
+            try:
+                requests.get(
+                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+                    params={"chat_id": tg_user.chat_id, "text": text}
+                )
+            except Exception as e:
+                print(f"Telegram send error: {e}")
 
 
 class Contact(models.Model):
