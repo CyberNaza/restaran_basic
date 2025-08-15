@@ -41,7 +41,7 @@ class Order(models.Model):
         self.send_to_telegram()
 
 
-    def send_to_telegram_async(self):
+    def send_to_telegram(self):
         items_text = ""
         if isinstance(self.items, list):
             for item in self.items:
