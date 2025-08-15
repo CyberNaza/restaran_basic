@@ -55,3 +55,15 @@ class SaveChatIDView(View):
 
         TelegramUser.objects.get_or_create(chat_id=chat_id, defaults={"username": username})
         return JsonResponse({"status": "success"})
+
+
+
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .models import Contact
+from .serializers import ContactSerializer
+
+class ContactViewSet(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+    permission_classes = [AllowAny]

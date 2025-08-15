@@ -15,8 +15,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
-            phone=validated_data['phone'],
-            address=validated_data.get('address', '')
+            phone=validated_data['phone']
+            # Remove the 'address' argument here
         )
         return user
 
@@ -34,3 +34,14 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'user', 'items', 'address', 'created_at']
+
+
+
+from rest_framework import serializers
+from .models import Contact
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'name', 'email', 'phone', 'message', 'created_at']
+        read_only_fields = ['created_at']
