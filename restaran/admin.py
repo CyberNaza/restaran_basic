@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, Order
 
 # If you previously registered User, unregister it first
 from django.contrib.auth import get_user_model
@@ -16,3 +16,5 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
         (None, {'fields': ('phone',)}),  # remove 'address'
     )
+
+admin.site.register(Order)

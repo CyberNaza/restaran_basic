@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, MeView, OrderCreateView, OrderListView
+from .views import *
 
 urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='register'),
@@ -10,4 +10,9 @@ urlpatterns = [
 
     path('orders/create/', OrderCreateView.as_view(), name='order-create'),
     path('orders/', OrderListView.as_view(), name='order-list'),
+    
+
+    path("api/save_chat_id/", SaveChatIDView.as_view(), name="save_chat_id"),
+
+
 ]

@@ -140,3 +140,25 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+
+
+AUTHENTICATION_BACKENDS = [
+    'restaran.backends.PhoneBackend',  # phone login
+    'django.contrib.auth.backends.ModelBackend',  # username login
+]
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"'
+        }
+    }
+}
+
+
+TELEGRAM_BOT_TOKEN = "8478003974:AAEf1RHpMJ8Aw0pAYx_Q2XtzbctAgY7V3EM"
+BOT_API_TOKEN = "123"  # must match bot server
