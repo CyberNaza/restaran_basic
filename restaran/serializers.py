@@ -1,26 +1,33 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Order
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import Order, Contact
 
 User = get_user_model()
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    tokens = serializers.SerializerMethodField()  # 👈 add this
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'phone']
+        fields = ['id', 'username', 'phone', 'password', 'tokens']
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             phone=validated_data['phone']
-            # Remove the 'address' argument here
         )
         return user
 
-from rest_framework import serializers
+    def get_tokens(self, obj):
+        refresh = RefreshToken.for_user(obj)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
 from .models import User, Order
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,7 +44,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 
-from rest_framework import serializers
 from .models import Contact
 
 class ContactSerializer(serializers.ModelSerializer):
