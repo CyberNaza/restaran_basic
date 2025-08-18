@@ -39,51 +39,31 @@ class Order(models.Model):
         self.send_to_telegram()
 
     def send_to_telegram(self):
-        items_text = ""
-
-        if isinstance(self.items, dict):
-            total_price = None
-            for key, value in self.items.items():
-                if isinstance(value, dict):
-                    name = value.get("name", "Unknown")
-                    qty = value.get("quantity", 1)
-                    price = value.get("price", "")
-                    items_text += f"- {name} x{qty} ({price})\n"
-                    if "total_price" in value:
-                        total_price = value["total_price"]
-                else:
-                    items_text += f"- {str(value)}\n"
-
-            if total_price is not None:
-                items_text += f"\n💰 Total: {total_price}\n"
-
-        elif isinstance(self.items, list):
-            for item in self.items:
-                if isinstance(item, dict):
-                    name = item.get("name", "Unknown")
-                    qty = item.get("quantity", 1)
-                    price = item.get("price", "")
-                    items_text += f"- {name} x{qty} ({price})\n"
-                else:
-                    items_text += f"- {str(item)}\n"
-
-        else:
-            items_text = json.dumps(self.items, ensure_ascii=False, indent=2)
-
-        text = (
-            f"📦 New Order!\n"
-            f"👤 User: {self.user.username} ({self.user.phone})\n"
-            f"🛒 Items:\n{items_text}"
-            f"📍 Address: {self.address or 'N/A'}\n"
-            f"💳 Payment: {self.payment_method}\n"
-            f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-        )
+        # Prepare order data as a dictionary
+        order_data = {
+            "type": "order",
+            "user": {
+                "username": self.user.username,
+                "phone": self.user.phone
+            },
+            "items": self.items,
+            "address": self.address or "N/A",
+            "payment_method": self.payment_method,
+            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M')
+        }
+        
+        # Convert to JSON string with proper encoding
+        text = json.dumps(order_data, ensure_ascii=False, indent=2)
 
         for tg_user in TelegramUser.objects.all():
             try:
                 requests.get(
                     f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-                    params={"chat_id": tg_user.chat_id, "text": text}
+                    params={
+                        "chat_id": tg_user.chat_id,
+                        "text": text,
+                        "parse_mode": "HTML"  # Using HTML to preserve JSON formatting
+                    }
                 )
             except Exception as e:
                 print(f"Telegram send error: {e}")
@@ -104,20 +84,28 @@ class Contact(models.Model):
         self.send_to_telegram()
 
     def send_to_telegram(self):
-        text = (
-            f"📨 New Contact Message!\n"
-            f"👤 Name: {self.name}\n"
-            f"📧 Email: {self.email or 'N/A'}\n"
-            f"📞 Phone: {self.phone or 'N/A'}\n"
-            f"💬 Message: {self.message or 'N/A'}\n"
-            f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-        )
+        # Prepare contact data as a dictionary
+        contact_data = {
+            "type": "contact",
+            "name": self.name,
+            "email": self.email or "N/A",
+            "phone": self.phone or "N/A",
+            "message": self.message or "N/A",
+            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M')
+        }
+        
+        # Convert to JSON string with proper encoding
+        text = json.dumps(contact_data, ensure_ascii=False, indent=2)
 
         for tg_user in TelegramUser.objects.all():
             try:
                 requests.get(
                     f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-                    params={"chat_id": tg_user.chat_id, "text": text}
+                    params={
+                        "chat_id": tg_user.chat_id,
+                        "text": text,
+                        "parse_mode": "HTML"  # Using HTML to preserve JSON formatting
+                    }
                 )
             except Exception as e:
                 print(f"Telegram send error: {e}")
