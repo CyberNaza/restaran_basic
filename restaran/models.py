@@ -38,28 +38,31 @@ class Order(models.Model):
         self.send_to_telegram()
 
     def send_to_telegram(self):
-        # Build items text, filtering out unexpected entries
+        # Build items text with more flexible handling
         items_text = ""
-        if isinstance(self.items, dict):
-            for key, value in self.items.items():
-                if isinstance(value, dict) and all(k in value for k in ["name", "quantity", "price"]):
-                    name = value.get("name", "Unknown")
-                    qty = value.get("quantity", 1)
-                    price = value.get("price", "")
-                    items_text += f"- {name} x{qty} ({price})\n"
-                elif isinstance(value, (str, int, float)):
-                    items_text += f"- {str(value)}\n"
-            if "total_price" in self.items:
+        if self.items:  # Check if items is not None or empty
+            if isinstance(self.items, dict):
+                for key, value in self.items.items():
+                    if isinstance(value, dict):
+                        name = value.get("name", "Unknown")
+                        qty = value.get("quantity", 1)
+                        price = value.get("price", "")
+                        items_text += f"- {name} x{qty} ({price})\n"
+                    else:
+                        items_text += f"- {key}: {str(value)}\n"
+            elif isinstance(self.items, list):
+                for item in self.items:
+                    if isinstance(item, dict):
+                        name = item.get("name", "Unknown")
+                        qty = item.get("quantity", 1)
+                        price = item.get("price", "")
+                        items_text += f"- {name} x{qty} ({price})\n"
+                    else:
+                        items_text += f"- {str(item)}\n"
+            if "total_price" in (self.items if isinstance(self.items, dict) else {}):
                 items_text += f"\n💰 Total: {self.items['total_price']}\n"
-        elif isinstance(self.items, list):
-            for item in self.items:
-                if isinstance(item, dict) and all(k in item for k in ["name", "quantity", "price"]):
-                    name = item.get("name", "Unknown")
-                    qty = item.get("quantity", 1)
-                    price = item.get("price", "")
-                    items_text += f"- {name} x{qty} ({price})\n"
-                elif isinstance(item, (str, int, float)):
-                    items_text += f"- {str(item)}\n"
+        else:
+            items_text = "No items available"
 
         # Ensure address is explicitly handled
         address_text = self.address if self.address else "N/A"
