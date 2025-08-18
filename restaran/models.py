@@ -38,39 +38,38 @@ class Order(models.Model):
         self.send_to_telegram()
 
     def send_to_telegram(self):
-        # Build items text
+        # Build items text, filtering out unexpected entries
         items_text = ""
         if isinstance(self.items, dict):
             for key, value in self.items.items():
-                if isinstance(value, dict):
+                if isinstance(value, dict) and all(k in value for k in ["name", "quantity", "price"]):
                     name = value.get("name", "Unknown")
                     qty = value.get("quantity", 1)
                     price = value.get("price", "")
                     items_text += f"- {name} x{qty} ({price})\n"
-                    if "total_price" in value:
-                        total_price = value["total_price"]
-                else:
+                elif isinstance(value, (str, int, float)):
                     items_text += f"- {str(value)}\n"
             if "total_price" in self.items:
                 items_text += f"\n💰 Total: {self.items['total_price']}\n"
         elif isinstance(self.items, list):
             for item in self.items:
-                if isinstance(item, dict):
+                if isinstance(item, dict) and all(k in item for k in ["name", "quantity", "price"]):
                     name = item.get("name", "Unknown")
                     qty = item.get("quantity", 1)
                     price = item.get("price", "")
                     items_text += f"- {name} x{qty} ({price})\n"
-                else:
+                elif isinstance(item, (str, int, float)):
                     items_text += f"- {str(item)}\n"
-        else:
-            items_text = str(self.items)
+
+        # Ensure address is explicitly handled
+        address_text = self.address if self.address else "N/A"
 
         # Format the message
         text = (
             f"📦 New Order!\n"
             f"👤 User: {self.user.username} ({self.user.phone})\n"
             f"🛒 Items:\n{items_text}"
-            f"📍 Address: {self.address or 'N/A'}\n"
+            f"📍 Address: {address_text}\n"
             f"💳 Payment: {self.payment_method}\n"
             f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
         )
@@ -82,7 +81,7 @@ class Order(models.Model):
                     params={
                         "chat_id": tg_user.chat_id,
                         "text": text,
-                        "parse_mode": "HTML"  # Ensures proper formatting
+                        "parse_mode": "HTML"
                     }
                 )
             except Exception as e:
@@ -104,7 +103,6 @@ class Contact(models.Model):
         self.send_to_telegram()
 
     def send_to_telegram(self):
-        # Format the message
         text = (
             f"📨 New Contact Message!\n"
             f"👤 Name: {self.name}\n"
@@ -121,7 +119,7 @@ class Contact(models.Model):
                     params={
                         "chat_id": tg_user.chat_id,
                         "text": text,
-                        "parse_mode": "HTML"  # Ensures proper formatting
+                        "parse_mode": "HTML"
                     }
                 )
             except Exception as e:
