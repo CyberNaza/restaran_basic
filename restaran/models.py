@@ -1,10 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-import asyncio
-from aiogram import Bot
-from asgiref.sync import sync_to_async
 import requests
+import json
 
 
 class User(AbstractUser):
@@ -42,50 +40,54 @@ class Order(models.Model):
 
     def send_to_telegram(self):
         items_text = ""
-        if isinstance(self.items, dict):  
+
+        if isinstance(self.items, dict):
             total_price = None
             for key, value in self.items.items():
                 if isinstance(value, dict):
-                    if "name" in value:  
-                        name = value.get("name", "Unknown")
-                        price = value.get("price", "")
-                        qty = value.get("quantity", 1)
-                        items_text += f"\t- {name} x{qty} ({price})\n"
-                    elif "total_price" in value:  
+                    name = value.get("name", "Unknown")
+                    qty = value.get("quantity", 1)
+                    price = value.get("price", "")
+                    items_text += f"- {name} x{qty} ({price})\n"
+                    if "total_price" in value:
                         total_price = value["total_price"]
+                else:
+                    items_text += f"- {str(value)}\n"
+
             if total_price is not None:
-                items_text += f"\n\t💰 Total: {total_price}\n"
-    
-            elif isinstance(self.items, list):  
-                for item in self.items:
-                    if isinstance(item, dict):
-                        name = item.get("name", "Unknown")
-                        qty = item.get("quantity", 1)
-                        price = item.get("price", "")
-                        items_text += f"\t- {name} x{qty} ({price})\n"
-                    else:
-                        items_text += f"\t- {str(item)}\n"
-            else:
-                items_text = str(self.items)
-    
-            text = (
-                f"📦 New Order!\n"
-                f"👤 User: {self.user.username} ({self.user.phone})\n"
-                f"🛒 Items:\n{items_text}"
-                f"📍 Address: {self.address or 'N/A'}\n"
-                f"💳 Payment: {self.payment_method}\n"
-                f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-            )
-    
-            for tg_user in TelegramUser.objects.all():
-                try:
-                    requests.get(
-                        f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-                        params={"chat_id": tg_user.chat_id, "text": text}
-                    )
-                except Exception as e:
-                    print(f"Telegram send error: {e}")
-    
+                items_text += f"\n💰 Total: {total_price}\n"
+
+        elif isinstance(self.items, list):
+            for item in self.items:
+                if isinstance(item, dict):
+                    name = item.get("name", "Unknown")
+                    qty = item.get("quantity", 1)
+                    price = item.get("price", "")
+                    items_text += f"- {name} x{qty} ({price})\n"
+                else:
+                    items_text += f"- {str(item)}\n"
+
+        else:
+            items_text = json.dumps(self.items, ensure_ascii=False, indent=2)
+
+        text = (
+            f"📦 New Order!\n"
+            f"👤 User: {self.user.username} ({self.user.phone})\n"
+            f"🛒 Items:\n{items_text}"
+            f"📍 Address: {self.address or 'N/A'}\n"
+            f"💳 Payment: {self.payment_method}\n"
+            f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        )
+
+        for tg_user in TelegramUser.objects.all():
+            try:
+                requests.get(
+                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+                    params={"chat_id": tg_user.chat_id, "text": text}
+                )
+            except Exception as e:
+                print(f"Telegram send error: {e}")
+
 
 class Contact(models.Model):
     name = models.CharField(max_length=255)
@@ -110,8 +112,12 @@ class Contact(models.Model):
             f"💬 Message: {self.message or 'N/A'}\n"
             f"⏰ Time: {self.created_at.strftime('%Y-%m-%d %H:%M')}"
         )
+
         for tg_user in TelegramUser.objects.all():
-            requests.get(
-                f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-                params={"chat_id": tg_user.chat_id, "text": text}
-            )
+            try:
+                requests.get(
+                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+                    params={"chat_id": tg_user.chat_id, "text": text}
+                )
+            except Exception as e:
+                print(f"Telegram send error: {e}")
